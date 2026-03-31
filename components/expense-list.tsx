@@ -1,16 +1,27 @@
-﻿import { format } from "date-fns";
+import { format } from "date-fns";
 import styles from "./expense-list.module.scss";
 import type { ExpenseRecord } from "@/lib/types";
 
 type ExpenseListProps = {
   expenses: ExpenseRecord[];
+  title?: string;
+  subtitle?: string;
+  showOwner?: boolean;
 };
 
-export function ExpenseList({ expenses }: ExpenseListProps) {
+export function ExpenseList({
+  expenses,
+  title = "Today's expenses",
+  subtitle,
+  showOwner = false
+}: ExpenseListProps) {
   return (
     <section className={styles.panel}>
       <div className={styles.heading}>
-        <h3>Today&apos;s expenses</h3>
+        <div>
+          <h3>{title}</h3>
+          {subtitle ? <p>{subtitle}</p> : null}
+        </div>
         <span>{expenses.length} entries</span>
       </div>
       <div className={styles.list}>
@@ -19,10 +30,11 @@ export function ExpenseList({ expenses }: ExpenseListProps) {
             <div>
               <strong>{expense.description}</strong>
               <p>
-                {expense.category} · {format(new Date(expense.createdAt), "p")}
+                {showOwner ? `${expense.userName} - ` : ""}
+                {expense.category} - {format(new Date(expense.createdAt), "p")}
               </p>
             </div>
-            <span>₹{expense.amount.toFixed(0)}</span>
+            <span>Rs. {expense.amount.toFixed(0)}</span>
           </article>
         ))}
       </div>

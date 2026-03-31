@@ -7,13 +7,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id          String    @id @default(cuid())
+  name        String
+  email       String    @unique
+  avatarColor String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  expenses    Expense[]
+
+  @@index([createdAt])
+}
+
 model Expense {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   amount      Float
   category    String
   description String
-  createdAt   DateTime
+  createdAt   DateTime  @default(now())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
   @@index([category])
+  @@index([userId, createdAt])
+  @@index([userId, category])
 }

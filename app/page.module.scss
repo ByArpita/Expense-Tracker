@@ -15,7 +15,6 @@
 }
 
 .copy {
-  max-width: 720px;
 
   h1 {
     margin: 0.25rem 0 0.75rem;
@@ -25,7 +24,6 @@
   }
 
   p {
-    max-width: 56ch;
     margin: 0;
     color: $color-text-soft;
     font-size: 1.05rem;
@@ -50,27 +48,6 @@
   letter-spacing: 0.08em;
 }
 
-.dashboardLink {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0.85rem 1.15rem;
-  border-radius: 999px;
-  background: $color-surface-strong;
-  color: white;
-  font-weight: 600;
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 24px rgba(18, 64, 49, 0.18);
-  }
-}
-
 @media (max-width: 780px) {
   .page {
     width: min(100% - 1rem, 1120px);
@@ -80,9 +57,5 @@
   .hero {
     flex-direction: column;
     padding-bottom: 1.5rem;
-  }
-
-  .dashboardLink {
-    width: 100%;
   }
 }

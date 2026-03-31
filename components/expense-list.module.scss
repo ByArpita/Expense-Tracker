@@ -1,4 +1,4 @@
-﻿@use "../styles/variables" as *;
+@use "../styles/variables" as *;
 
 .panel {
   padding: 1.2rem;
@@ -18,6 +18,12 @@
   h3 {
     margin: 0;
     font-size: 1.15rem;
+  }
+
+  p {
+    margin: 0.3rem 0 0;
+    color: $color-text-soft;
+    font-size: 0.92rem;
   }
 
   span {

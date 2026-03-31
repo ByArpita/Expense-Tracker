@@ -1,9 +1,20 @@
+export type UserProfile = {
+  id: string;
+  name: string;
+  email: string;
+  avatarColor: string;
+};
+
 export type ExpenseRecord = {
   id: string;
   amount: number;
   category: string;
   description: string;
   createdAt: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userAvatarColor: string;
 };
 
 export type WeeklyTrendPoint = {
@@ -22,6 +33,7 @@ export type SummaryCategory = {
 };
 
 export type DashboardResponse = {
+  currentUser: UserProfile;
   todayExpenses: ExpenseRecord[];
   weeklyTrend: WeeklyTrendPoint[];
   categoryDistribution: CategoryDistributionItem[];
@@ -36,4 +48,8 @@ export type DashboardResponse = {
   };
   insights: string[];
   recentExpenses: ExpenseRecord[];
+};
+
+export type SessionResponse = {
+  user: UserProfile | null;
 };

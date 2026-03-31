@@ -8,8 +8,8 @@ export default function DashboardPage() {
       <header className={styles.header}>
         <div>
           <span className={styles.kicker}>Dashboard</span>
-          <h1>Spending at a glance</h1>
-          <p>Track today, compare this week, and spot patterns before they grow.</p>
+          <h1>Your spending, only your data</h1>
+          <p>Review your personal trends, categories, and recent activity after logging in with your email.</p>
         </div>
         <Link href="/" className={styles.homeLink}>
           Back to quick add

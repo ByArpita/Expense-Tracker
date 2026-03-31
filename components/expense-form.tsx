@@ -1,16 +1,22 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import styles from "./expense-form.module.scss";
-import type { ExpenseRecord } from "@/lib/types";
+import type { ExpenseRecord, UserProfile } from "@/lib/types";
 
 type ExpenseFormProps = {
+  activeUser: UserProfile | null;
   onExpenseAdded: (expense: ExpenseRecord) => void;
 };
 
-const sampleInputs = ["Spent 200 on food", "Petrol 500", "200 ka chai", "Zomato 350"];
+const sampleInputs = [
+  "Spent 200 on food",
+  "Petrol 500",
+  "200 ka chai",
+  "Zomato 350"
+];
 
-export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
+export function ExpenseForm({ activeUser, onExpenseAdded }: ExpenseFormProps) {
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +27,11 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
     const value = text.trim();
     if (!value) {
       setError("Type an expense like 'Petrol 500' to continue.");
+      return;
+    }
+
+    if (!activeUser) {
+      setError("Login before saving an expense.");
       return;
     }
 
@@ -70,8 +81,8 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
           <h2>Log an expense in one line</h2>
         </div>
         <p>
-          AI extracts the amount, category, description, and date automatically. If AI is
-          unavailable, a local parser takes over.
+          Your dashboard is private to your email account. Add an expense naturally and the
+          app will keep your personal history available the next time you login.
         </p>
       </div>
 
@@ -86,8 +97,9 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
             onChange={(event) => setText(event.target.value)}
             placeholder="Try 'Dinner with team 850 yesterday'"
             autoComplete="off"
+            disabled={!activeUser || submitting}
           />
-          <button type="submit" disabled={submitting}>
+          <button type="submit" disabled={!activeUser || submitting}>
             {submitting ? "Saving..." : "Add expense"}
           </button>
         </div>
@@ -98,6 +110,7 @@ export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
               type="button"
               className={styles.sample}
               onClick={() => setText(sample)}
+              disabled={!activeUser || submitting}
             >
               {sample}
             </button>

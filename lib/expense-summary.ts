@@ -13,6 +13,7 @@ import type {
   DashboardResponse,
   ExpenseRecord,
   SummaryCategory,
+  UserProfile,
   WeeklyTrendPoint
 } from "@/lib/types";
 
@@ -22,10 +23,23 @@ function toExpenseRecord(expense: {
   category: string;
   description: string;
   createdAt: Date;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatarColor: string;
+  } | null;
 }): ExpenseRecord {
   return {
-    ...expense,
-    createdAt: expense.createdAt.toISOString()
+    id: expense.id,
+    amount: expense.amount,
+    category: expense.category,
+    description: expense.description,
+    createdAt: expense.createdAt.toISOString(),
+    userId: expense.user?.id ?? "legacy-user",
+    userName: expense.user?.name ?? "Local Owner",
+    userEmail: expense.user?.email ?? "local-owner@expense.local",
+    userAvatarColor: expense.user?.avatarColor ?? "#165fa8"
   };
 }
 
@@ -58,6 +72,7 @@ function buildWeeklyTrend(expenses: Array<{ amount: number; createdAt: Date }>):
 }
 
 function buildInsights(
+  userName: string,
   weeklyTotal: number,
   previousWeeklyTotal: number,
   monthlyTopCategory: string | null,
@@ -68,26 +83,26 @@ function buildInsights(
   if (previousWeeklyTotal > 0) {
     const change = ((weeklyTotal - previousWeeklyTotal) / previousWeeklyTotal) * 100;
     const direction = change >= 0 ? "more" : "less";
-    insights.push(`You spent ${Math.abs(change).toFixed(0)}% ${direction} this week than last week.`);
+    insights.push(`${userName}, you spent ${Math.abs(change).toFixed(0)}% ${direction} this week than last week.`);
   } else {
-    insights.push("This is your first active week of spending data, so every new entry sharpens the insights.");
+    insights.push(`${userName}, this is your first active week of tracked spending, so each entry sharpens the trends.`);
   }
 
   if (monthlyTopCategory) {
-    insights.push(`Top category this month is ${monthlyTopCategory}.`);
+    insights.push(`Your top category this month is ${monthlyTopCategory}.`);
   }
 
   const leadingWeeklyCategory = weeklyCategories[0];
   if (leadingWeeklyCategory) {
     insights.push(
-      `${leadingWeeklyCategory.category} leads this week at ₹${leadingWeeklyCategory.total.toFixed(0)}.`
+      `${leadingWeeklyCategory.category} leads your week at Rs. ${leadingWeeklyCategory.total.toFixed(0)}.`
     );
   }
 
   return insights;
 }
 
-export async function getExpenseDashboardData(): Promise<DashboardResponse> {
+export async function getExpenseDashboardData(currentUser: UserProfile): Promise<DashboardResponse> {
   const now = new Date();
   const todayStart = startOfDay(now);
   const todayEnd = endOfDay(now);
@@ -100,10 +115,14 @@ export async function getExpenseDashboardData(): Promise<DashboardResponse> {
     await Promise.all([
       prisma.expense.findMany({
         where: {
+          userId: currentUser.id,
           createdAt: {
             gte: todayStart,
             lte: todayEnd
           }
+        },
+        include: {
+          user: true
         },
         orderBy: {
           createdAt: "desc"
@@ -111,6 +130,7 @@ export async function getExpenseDashboardData(): Promise<DashboardResponse> {
       }),
       prisma.expense.findMany({
         where: {
+          userId: currentUser.id,
           createdAt: {
             gte: sevenDaysAgo,
             lte: todayEnd
@@ -119,6 +139,7 @@ export async function getExpenseDashboardData(): Promise<DashboardResponse> {
       }),
       prisma.expense.findMany({
         where: {
+          userId: currentUser.id,
           createdAt: {
             gte: previousWeekStart,
             lte: previousWeekEnd
@@ -127,6 +148,7 @@ export async function getExpenseDashboardData(): Promise<DashboardResponse> {
       }),
       prisma.expense.findMany({
         where: {
+          userId: currentUser.id,
           createdAt: {
             gte: monthStart,
             lte: todayEnd
@@ -134,6 +156,12 @@ export async function getExpenseDashboardData(): Promise<DashboardResponse> {
         }
       }),
       prisma.expense.findMany({
+        where: {
+          userId: currentUser.id
+        },
+        include: {
+          user: true
+        },
         orderBy: {
           createdAt: "desc"
         },
@@ -150,6 +178,7 @@ export async function getExpenseDashboardData(): Promise<DashboardResponse> {
   }));
 
   return {
+    currentUser,
     todayExpenses: todayExpenses.map(toExpenseRecord),
     weeklyTrend: buildWeeklyTrend(weeklyExpenses),
     categoryDistribution,
@@ -163,6 +192,7 @@ export async function getExpenseDashboardData(): Promise<DashboardResponse> {
       topCategory: monthlyCategories[0]?.category ?? null
     },
     insights: buildInsights(
+      currentUser.name,
       sumExpenses(weeklyExpenses),
       sumExpenses(previousWeeklyExpenses),
       monthlyCategories[0]?.category ?? null,
