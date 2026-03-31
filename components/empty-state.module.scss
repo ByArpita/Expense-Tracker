@@ -1,0 +1,19 @@
+﻿@use "../styles/variables" as *;
+
+.panel {
+  padding: 1.5rem;
+  border: 1px dashed rgba(17, 99, 72, 0.28);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.72);
+
+  h3 {
+    margin: 0 0 0.45rem;
+    font-size: 1.2rem;
+  }
+
+  p {
+    margin: 0;
+    color: $color-text-soft;
+    line-height: 1.6;
+  }
+}

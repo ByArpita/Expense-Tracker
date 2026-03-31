@@ -1,0 +1,110 @@
+﻿"use client";
+
+import { useState } from "react";
+import styles from "./expense-form.module.scss";
+import type { ExpenseRecord } from "@/lib/types";
+
+type ExpenseFormProps = {
+  onExpenseAdded: (expense: ExpenseRecord) => void;
+};
+
+const sampleInputs = ["Spent 200 on food", "Petrol 500", "200 ka chai", "Zomato 350"];
+
+export function ExpenseForm({ onExpenseAdded }: ExpenseFormProps) {
+  const [text, setText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const value = text.trim();
+    if (!value) {
+      setError("Type an expense like 'Petrol 500' to continue.");
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/expenses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ text: value })
+      });
+
+      const payload = (await response.json()) as
+        | { expense: ExpenseRecord }
+        | { error: string };
+
+      if (!response.ok) {
+        const message = "error" in payload ? payload.error : "Unable to save expense.";
+        throw new Error(message);
+      }
+
+      if (!("expense" in payload)) {
+        throw new Error("Unexpected API response while saving expense.");
+      }
+
+      onExpenseAdded(payload.expense);
+      setText("");
+    } catch (submissionError) {
+      setError(
+        submissionError instanceof Error
+          ? submissionError.message
+          : "Something went wrong while saving the expense."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <section className={styles.panel}>
+      <div className={styles.header}>
+        <div>
+          <span className={styles.badge}>Quick Add</span>
+          <h2>Log an expense in one line</h2>
+        </div>
+        <p>
+          AI extracts the amount, category, description, and date automatically. If AI is
+          unavailable, a local parser takes over.
+        </p>
+      </div>
+
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <label className={styles.label} htmlFor="expense-input">
+          Expense text
+        </label>
+        <div className={styles.inputRow}>
+          <input
+            id="expense-input"
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            placeholder="Try 'Dinner with team 850 yesterday'"
+            autoComplete="off"
+          />
+          <button type="submit" disabled={submitting}>
+            {submitting ? "Saving..." : "Add expense"}
+          </button>
+        </div>
+        <div className={styles.samples}>
+          {sampleInputs.map((sample) => (
+            <button
+              key={sample}
+              type="button"
+              className={styles.sample}
+              onClick={() => setText(sample)}
+            >
+              {sample}
+            </button>
+          ))}
+        </div>
+        {error ? <p className={styles.error}>{error}</p> : null}
+      </form>
+    </section>
+  );
+}

@@ -1,0 +1,44 @@
+@use "../styles/variables" as *;
+
+.shell {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.sectionIntro {
+  h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.35rem;
+  }
+
+  p {
+    margin: 0;
+    color: $color-text-soft;
+  }
+}
+
+.grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.9fr);
+}
+
+.loading,
+.toast {
+  padding: 1rem 1.1rem;
+  border-radius: 24px;
+  border: 1px solid $color-border;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(18px);
+}
+
+.toast {
+  color: $color-accent-dark;
+  font-weight: 600;
+}
+
+@media (max-width: 920px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
