@@ -4,12 +4,15 @@ import type { UserProfile } from "@/lib/types";
 const legacyEmail = "local-owner@expense.local";
 const palette = ["#165fa8", "#2d7dd2", "#4c9ce2", "#6fb5ff", "#3b82c4"];
 
-function toUserProfile(user: {
+type UserRecord = {
   id: string;
   name: string;
   email: string;
+  passwordHash: string | null;
   avatarColor: string;
-}): UserProfile {
+};
+
+function toUserProfile(user: UserRecord): UserProfile {
   return {
     id: user.id,
     name: user.name,
@@ -21,11 +24,13 @@ function toUserProfile(user: {
 function buildNameFromEmail(email: string) {
   const root = email.split("@")[0] ?? "User";
 
-  return root
-    .split(/[._-]+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ") || "User";
+  return (
+    root
+      .split(/[._-]+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ") || "User"
+  );
 }
 
 function buildColorFromEmail(email: string) {
@@ -40,11 +45,13 @@ async function ensureLegacyOwner() {
     },
     update: {
       name: "Local Owner",
+      passwordHash: null,
       avatarColor: "#165fa8"
     },
     create: {
       email: legacyEmail,
       name: "Local Owner",
+      passwordHash: null,
       avatarColor: "#165fa8"
     }
   });
@@ -55,10 +62,24 @@ async function ensureLegacyOwner() {
   );
 }
 
-export async function findOrCreateUserByEmail(email: string, name?: string) {
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+export async function getUserAuthRecordByEmail(email: string) {
   await ensureLegacyOwner();
 
-  const normalizedEmail = email.trim().toLowerCase();
+  return prisma.user.findUnique({
+    where: {
+      email: normalizeEmail(email)
+    }
+  });
+}
+
+export async function saveUserWithPassword(email: string, passwordHash: string, name?: string) {
+  await ensureLegacyOwner();
+
+  const normalizedEmail = normalizeEmail(email);
   const nextName = name?.trim() || buildNameFromEmail(normalizedEmail);
   const avatarColor = buildColorFromEmail(normalizedEmail);
 
@@ -66,17 +87,15 @@ export async function findOrCreateUserByEmail(email: string, name?: string) {
     where: {
       email: normalizedEmail
     },
-    update: name?.trim()
-      ? {
-          name: nextName,
-          avatarColor
-        }
-      : {
-          avatarColor
-        },
+    update: {
+      name: nextName,
+      passwordHash,
+      avatarColor
+    },
     create: {
       email: normalizedEmail,
       name: nextName,
+      passwordHash,
       avatarColor
     }
   });

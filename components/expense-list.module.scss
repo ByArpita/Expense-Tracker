@@ -63,3 +63,30 @@
     color: $color-accent-dark;
   }
 }
+
+.itemMain {
+  min-width: 0;
+  flex: 1;
+}
+
+.itemActions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-shrink: 0;
+}
+
+.deleteButton {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(187, 63, 54, 0.18);
+  border-radius: 999px;
+  background: rgba(187, 63, 54, 0.08);
+  color: $color-danger;
+  font-weight: 700;
+  flex-shrink: 0;
+  padding-bottom: 4px;
+}

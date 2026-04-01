@@ -9,12 +9,7 @@ type ExpenseFormProps = {
   onExpenseAdded: (expense: ExpenseRecord) => void;
 };
 
-const sampleInputs = [
-  "Spent 200 on food",
-  "Petrol 500",
-  "200 ka chai",
-  "Zomato 350"
-];
+const sampleInputs = ["Spent 200 on food", "Petrol 500", "200 ka chai", "Zomato 350"];
 
 export function ExpenseForm({ activeUser, onExpenseAdded }: ExpenseFormProps) {
   const [text, setText] = useState("");
@@ -31,7 +26,7 @@ export function ExpenseForm({ activeUser, onExpenseAdded }: ExpenseFormProps) {
     }
 
     if (!activeUser) {
-      setError("Login before saving an expense.");
+      setError("Sign in before saving an expense.");
       return;
     }
 
@@ -47,9 +42,7 @@ export function ExpenseForm({ activeUser, onExpenseAdded }: ExpenseFormProps) {
         body: JSON.stringify({ text: value })
       });
 
-      const payload = (await response.json()) as
-        | { expense: ExpenseRecord }
-        | { error: string };
+      const payload = (await response.json()) as { expense: ExpenseRecord } | { error: string };
 
       if (!response.ok) {
         const message = "error" in payload ? payload.error : "Unable to save expense.";
@@ -81,8 +74,8 @@ export function ExpenseForm({ activeUser, onExpenseAdded }: ExpenseFormProps) {
           <h2>Log an expense in one line</h2>
         </div>
         <p>
-          Your dashboard is private to your email account. Add an expense naturally and the
-          app will keep your personal history available the next time you login.
+          Your dashboard is private to your account. Add an expense naturally and the app will
+          keep your personal history ready the next time you sign in.
         </p>
       </div>
 

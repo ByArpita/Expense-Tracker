@@ -1,10 +1,10 @@
 # AI Expense Tracker
 
-A personal expense tracking app built with Next.js App Router, TypeScript, Prisma, SQLite, OpenAI, and SCSS modules. Users log in with a unique email address, add expenses in natural language like `Zomato 350`, `Spent 200 on food`, or `200 ka chai`, and get a private dashboard with summaries, charts, and lightweight insights.
+A personal expense tracking app built with Next.js App Router, TypeScript, Prisma, SQLite, OpenAI, and SCSS modules. Users create an account with email and password, add expenses in natural language like `Zomato 350`, `Spent 200 on food`, or `200 ka chai`, and get a private dashboard with summaries, charts, and lightweight insights.
 
 ## Features
 
-- Email-based login so each user gets a separate private dashboard
+- Email and password authentication so each user gets a separate private dashboard
 - Natural language expense input with AI parsing and a local fallback parser
 - SQLite storage through Prisma ORM
 - Personal dashboard with today's expenses, weekly totals, monthly totals, top category, trend chart, and category pie chart
@@ -70,14 +70,14 @@ npm run dev
 
 ## How It Works
 
-- A user logs in with their email address
+- A user signs in with their email and password
 - The app stores a session cookie for that user
 - All expense and summary API routes are scoped to the logged-in user
 - Each user only sees their own expense records and dashboard data
 
 ## API Overview
 
-- `POST /api/session` creates or resumes a user session from an email address
+- `POST /api/session` creates an account or signs in a user and starts a session
 - `GET /api/session` returns the current logged-in user
 - `DELETE /api/session` clears the current session
 - `POST /api/expenses` parses natural language and stores a new expense for the logged-in user
@@ -89,7 +89,7 @@ npm run dev
 - `Expense.createdAt` stores the parsed date from the input
 - The AI prompt and fallback parser live in `lib/ai.ts`
 - Input validation uses Zod
-- User identity is keyed by unique email address
+- User identity is keyed by unique email address and protected by a password hash
 - Existing expenses without a user are backfilled to a local legacy owner account
 
 ## Future Improvements
@@ -98,6 +98,7 @@ npm run dev
 - Hosted database for true cross-device persistence outside local SQLite
 - Expense edit and delete actions
 - CSV export
+- Yearly insights for long-term spending patterns and year-over-year comparisons, to be implemented once enough data has been collected over a year
 - Voice input
 - Smart reminders
 - Multi-language support

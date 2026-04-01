@@ -44,6 +44,7 @@ export function ExpenseAppShell({ showHeader }: ExpenseAppShellProps) {
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [lastAdded, setLastAdded] = useState<ExpenseRecord | null>(null);
+  const [deletingExpenseId, setDeletingExpenseId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -142,12 +143,34 @@ export function ExpenseAppShell({ showHeader }: ExpenseAppShellProps) {
     setLastAdded(null);
   }
 
+  async function handleDeleteExpense(expenseId: string) {
+    setDeletingExpenseId(expenseId);
+
+    try {
+      const response = await fetch(`/api/expenses?id=${encodeURIComponent(expenseId)}`, {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json()) as { error?: string };
+        throw new Error(payload.error ?? "Unable to remove expense.");
+      }
+
+      setLastAdded(null);
+      setRefreshKey((value) => value + 1);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setDeletingExpenseId(null);
+    }
+  }
+
   return (
     <section className={styles.shell}>
       {showHeader ? (
         <div className={styles.sectionIntro}>
           <h2>Add and review expenses</h2>
-          <p>Your dashboard is tied to your email, so only your personal expense history shows up here.</p>
+          <p>Your dashboard is tied to your account, so only your personal expense history shows up here.</p>
         </div>
       ) : null}
 
@@ -205,6 +228,8 @@ export function ExpenseAppShell({ showHeader }: ExpenseAppShellProps) {
                 expenses={data.todayExpenses}
                 title="Today's expenses"
                 subtitle={`${data.currentUser.name}'s entries for today`}
+                onDeleteExpense={handleDeleteExpense}
+                deletingExpenseId={deletingExpenseId}
               />
               <InsightsPanel insights={data.insights} />
             </div>

@@ -9,12 +9,12 @@ export async function GET() {
   const userId = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
   if (!userId) {
-    return NextResponse.json({ error: "Please login with your email." }, { status: 401 });
+    return NextResponse.json({ error: "Please sign in to your account." }, { status: 401 });
   }
 
   const user = await getUserById(userId);
   if (!user) {
-    return NextResponse.json({ error: "Your session has expired. Please login again." }, { status: 401 });
+    return NextResponse.json({ error: "Your session has expired. Please sign in again." }, { status: 401 });
   }
 
   const summary = await getExpenseDashboardData(user);

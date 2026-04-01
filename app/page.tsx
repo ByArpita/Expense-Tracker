@@ -7,10 +7,10 @@ export default function HomePage() {
       <section className={styles.hero}>
         <div className={styles.copy}>
           <span className={styles.eyebrow}>Personal AI Expense Tracker</span>
-          <h1>Open your private dashboard with your email.</h1>
+          <h1>Track your expenses with ease.</h1>
           <p>
-            Login with your email, add expenses in natural language, and come back later
-            from any device to your own personal history and insights.
+            Create your account, add expenses in natural language, and come back later from any
+            device to your own personal history and insights.
           </p>
         </div>
       </section>

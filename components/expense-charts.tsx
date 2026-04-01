@@ -64,7 +64,7 @@ export function ExpenseCharts({
                 nameKey="name"
                 innerRadius={60}
                 outerRadius={90}
-                paddingAngle={3}
+                paddingAngle={1}
               >
                 {categoryDistribution.map((entry, index) => (
                   <Cell

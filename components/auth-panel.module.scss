@@ -29,12 +29,33 @@
   display: inline-flex;
   padding: 0.45rem 0.75rem;
   border-radius: 999px;
-  background: rgba(22, 95, 168, 0.12);
+  background: rgba(17, 99, 72, 0.12);
   color: $color-accent-dark;
   font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+.modeSwitch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+
+  button {
+    min-height: 48px;
+    border: 1px solid $color-border;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.75);
+    color: $color-text;
+    font-weight: 700;
+  }
+}
+
+.modeActive {
+  background: linear-gradient(135deg, #116348 0%, #123f31 100%) !important;
+  border-color: transparent !important;
+  color: white !important;
 }
 
 .form {
@@ -61,7 +82,7 @@
     min-height: 54px;
     border: none;
     border-radius: 18px;
-    background: linear-gradient(135deg, #165fa8 0%, #153a63 100%);
+    background: linear-gradient(135deg, #116348 0%, #123f31 100%);
     color: white;
     font-weight: 700;
   }

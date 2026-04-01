@@ -7,11 +7,16 @@ import { SESSION_COOKIE_NAME } from "@/lib/session";
 import { getUserById } from "@/lib/workspace";
 import { expenseInputSchema, expenseRecordSchema } from "@/lib/validators";
 
+const deleteExpenseSchema = z.object({
+  id: z.string().trim().min(1, "Expense id is required.")
+});
+
 function toExpenseRecord(expense: {
   id: string;
   amount: number;
   category: string;
   description: string;
+  expenseDate: Date | null;
   createdAt: Date;
   user: {
     id: string;
@@ -48,7 +53,7 @@ export async function GET() {
   const user = await getAuthenticatedUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Please login with your email." }, { status: 401 });
+    return NextResponse.json({ error: "Please sign in to your account." }, { status: 401 });
   }
 
   const expenses = await prisma.expense.findMany({
@@ -75,7 +80,7 @@ export async function POST(request: Request) {
     const user = await getAuthenticatedUser();
 
     if (!user) {
-      return NextResponse.json({ error: "Please login with your email." }, { status: 401 });
+      return NextResponse.json({ error: "Please sign in to your account." }, { status: 401 });
     }
 
     const body = await request.json();
@@ -88,7 +93,7 @@ export async function POST(request: Request) {
         amount: validatedExpense.amount,
         category: validatedExpense.category,
         description: validatedExpense.description,
-        createdAt: new Date(validatedExpense.date),
+        expenseDate: new Date(validatedExpense.date),
         userId: user.id
       },
       include: {
@@ -108,6 +113,44 @@ export async function POST(request: Request) {
     }
 
     const message = error instanceof Error ? error.message : "We could not save that expense.";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const user = await getAuthenticatedUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Please sign in to your account." }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const { id } = deleteExpenseSchema.parse({ id: searchParams.get("id") ?? "" });
+
+    const deleted = await prisma.expense.deleteMany({
+      where: {
+        id,
+        userId: user.id
+      }
+    });
+
+    if (deleted.count === 0) {
+      return NextResponse.json({ error: "Expense not found." }, { status: 404 });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        {
+          error: error.issues[0]?.message ?? "Please choose a valid expense."
+        },
+        { status: 400 }
+      );
+    }
+
+    const message = error instanceof Error ? error.message : "We could not remove that expense.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

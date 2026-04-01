@@ -9,7 +9,7 @@ export default function DashboardPage() {
         <div>
           <span className={styles.kicker}>Dashboard</span>
           <h1>Your spending, only your data</h1>
-          <p>Review your personal trends, categories, and recent activity after logging in with your email.</p>
+          <p>Review your personal trends, categories, and recent activity after signing in securely.</p>
         </div>
         <Link href="/" className={styles.homeLink}>
           Back to quick add

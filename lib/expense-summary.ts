@@ -22,6 +22,7 @@ function toExpenseRecord(expense: {
   amount: number;
   category: string;
   description: string;
+  expenseDate: Date | null;
   createdAt: Date;
   user: {
     id: string;
@@ -59,14 +60,14 @@ function groupByCategory(expenses: Array<{ category: string; amount: number }>):
     .sort((left, right) => right.total - left.total);
 }
 
-function buildWeeklyTrend(expenses: Array<{ amount: number; createdAt: Date }>): WeeklyTrendPoint[] {
+function buildWeeklyTrend(expenses: Array<{ amount: number; expenseDate: Date | null; createdAt: Date }>): WeeklyTrendPoint[] {
   const end = startOfDay(new Date());
   const start = subDays(end, 6);
 
   return eachDayOfInterval({ start, end }).map((day) => ({
     label: format(day, "EEE"),
     amount: expenses
-      .filter((expense) => isSameDay(expense.createdAt, day))
+      .filter((expense) => isSameDay(expense.expenseDate ?? expense.createdAt, day))
       .reduce((total, expense) => total + expense.amount, 0)
   }));
 }
@@ -116,10 +117,21 @@ export async function getExpenseDashboardData(currentUser: UserProfile): Promise
       prisma.expense.findMany({
         where: {
           userId: currentUser.id,
-          createdAt: {
-            gte: todayStart,
-            lte: todayEnd
-          }
+          OR: [
+            {
+              expenseDate: {
+                gte: todayStart,
+                lte: todayEnd
+              }
+            },
+            {
+              expenseDate: null,
+              createdAt: {
+                gte: todayStart,
+                lte: todayEnd
+              }
+            }
+          ]
         },
         include: {
           user: true
@@ -131,28 +143,61 @@ export async function getExpenseDashboardData(currentUser: UserProfile): Promise
       prisma.expense.findMany({
         where: {
           userId: currentUser.id,
-          createdAt: {
-            gte: sevenDaysAgo,
-            lte: todayEnd
-          }
+          OR: [
+            {
+              expenseDate: {
+                gte: sevenDaysAgo,
+                lte: todayEnd
+              }
+            },
+            {
+              expenseDate: null,
+              createdAt: {
+                gte: sevenDaysAgo,
+                lte: todayEnd
+              }
+            }
+          ]
         }
       }),
       prisma.expense.findMany({
         where: {
           userId: currentUser.id,
-          createdAt: {
-            gte: previousWeekStart,
-            lte: previousWeekEnd
-          }
+          OR: [
+            {
+              expenseDate: {
+                gte: previousWeekStart,
+                lte: previousWeekEnd
+              }
+            },
+            {
+              expenseDate: null,
+              createdAt: {
+                gte: previousWeekStart,
+                lte: previousWeekEnd
+              }
+            }
+          ]
         }
       }),
       prisma.expense.findMany({
         where: {
           userId: currentUser.id,
-          createdAt: {
-            gte: monthStart,
-            lte: todayEnd
-          }
+          OR: [
+            {
+              expenseDate: {
+                gte: monthStart,
+                lte: todayEnd
+              }
+            },
+            {
+              expenseDate: null,
+              createdAt: {
+                gte: monthStart,
+                lte: todayEnd
+              }
+            }
+          ]
         }
       }),
       prisma.expense.findMany({

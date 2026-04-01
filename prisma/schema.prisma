@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(cuid())
-  name        String
-  email       String    @unique
-  avatarColor String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  expenses    Expense[]
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String?
+  avatarColor  String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  expenses     Expense[]
 
   @@index([createdAt])
 }
@@ -24,12 +25,15 @@ model Expense {
   amount      Float
   category    String
   description String
+  expenseDate DateTime?
   createdAt   DateTime  @default(now())
   userId      String?
   user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
+  @@index([expenseDate])
   @@index([category])
   @@index([userId, createdAt])
+  @@index([userId, expenseDate])
   @@index([userId, category])
 }
