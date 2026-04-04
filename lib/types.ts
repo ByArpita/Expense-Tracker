@@ -32,11 +32,26 @@ export type SummaryCategory = {
   total: number;
 };
 
+export type ExpenseTrendRange = "7d" | "1m" | "3m" | "6m" | "1y";
+
+export type ExpenseTrendPoint = {
+  date: string;
+  label: string;
+  total: number;
+};
+
+export type ExpenseTrendResponse = {
+  points: ExpenseTrendPoint[];
+  range: ExpenseTrendRange;
+  granularity: "day" | "month";
+};
+
 export type DashboardResponse = {
   currentUser: UserProfile;
   todayExpenses: ExpenseRecord[];
   weeklyTrend: WeeklyTrendPoint[];
   categoryDistribution: CategoryDistributionItem[];
+  previousMonthCategoryDistribution: CategoryDistributionItem[];
   weeklySummary: {
     total: number;
     previousTotal: number;

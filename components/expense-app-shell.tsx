@@ -5,6 +5,7 @@ import { AuthPanel } from "@/components/auth-panel";
 import { ExpenseForm } from "@/components/expense-form";
 import { DashboardCards } from "@/components/dashboard-cards";
 import { ExpenseCharts } from "@/components/expense-charts";
+import { ExpenseTrendChart } from "@/components/ExpenseTrendChart";
 import { ExpenseList } from "@/components/expense-list";
 import { InsightsPanel } from "@/components/insights-panel";
 import { EmptyState } from "@/components/empty-state";
@@ -25,6 +26,7 @@ const emptySummary: DashboardResponse = {
   todayExpenses: [],
   weeklyTrend: [],
   categoryDistribution: [],
+  previousMonthCategoryDistribution: [],
   weeklySummary: {
     total: 0,
     previousTotal: 0,
@@ -236,7 +238,9 @@ export function ExpenseAppShell({ showHeader }: ExpenseAppShellProps) {
             <ExpenseCharts
               weeklyTrend={data.weeklyTrend}
               categoryDistribution={data.categoryDistribution}
+              previousMonthCategoryDistribution={data.previousMonthCategoryDistribution}
             />
+            <ExpenseTrendChart refreshKey={refreshKey} />
           </>
         )
       ) : null}

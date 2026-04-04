@@ -1,11 +1,13 @@
 import {
   eachDayOfInterval,
   endOfDay,
+  endOfMonth,
   format,
   isSameDay,
   startOfDay,
   startOfMonth,
-  subDays
+  subDays,
+  subMonths
 } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import type {
@@ -111,8 +113,10 @@ export async function getExpenseDashboardData(currentUser: UserProfile): Promise
   const previousWeekStart = subDays(todayStart, 13);
   const previousWeekEnd = subDays(todayEnd, 7);
   const monthStart = startOfMonth(now);
+  const previousMonthStart = startOfMonth(subMonths(now, 1));
+  const previousMonthEnd = endOfMonth(subMonths(now, 1));
 
-  const [todayExpenses, weeklyExpenses, previousWeeklyExpenses, monthlyExpenses, recentExpenses] =
+  const [todayExpenses, weeklyExpenses, previousWeeklyExpenses, monthlyExpenses, previousMonthExpenses, recentExpenses] =
     await Promise.all([
       prisma.expense.findMany({
         where: {
@@ -202,6 +206,26 @@ export async function getExpenseDashboardData(currentUser: UserProfile): Promise
       }),
       prisma.expense.findMany({
         where: {
+          userId: currentUser.id,
+          OR: [
+            {
+              expenseDate: {
+                gte: previousMonthStart,
+                lte: previousMonthEnd
+              }
+            },
+            {
+              expenseDate: null,
+              createdAt: {
+                gte: previousMonthStart,
+                lte: previousMonthEnd
+              }
+            }
+          ]
+        }
+      }),
+      prisma.expense.findMany({
+        where: {
           userId: currentUser.id
         },
         include: {
@@ -216,8 +240,14 @@ export async function getExpenseDashboardData(currentUser: UserProfile): Promise
 
   const weeklySummaryCategories = groupByCategory(weeklyExpenses);
   const monthlyCategories = groupByCategory(monthlyExpenses);
+  const previousMonthCategories = groupByCategory(previousMonthExpenses);
 
   const categoryDistribution: CategoryDistributionItem[] = monthlyCategories.map((item) => ({
+    name: item.category,
+    value: item.total
+  }));
+
+  const previousMonthCategoryDistribution: CategoryDistributionItem[] = previousMonthCategories.map((item) => ({
     name: item.category,
     value: item.total
   }));
@@ -227,6 +257,7 @@ export async function getExpenseDashboardData(currentUser: UserProfile): Promise
     todayExpenses: todayExpenses.map(toExpenseRecord),
     weeklyTrend: buildWeeklyTrend(weeklyExpenses),
     categoryDistribution,
+    previousMonthCategoryDistribution,
     weeklySummary: {
       total: sumExpenses(weeklyExpenses),
       previousTotal: sumExpenses(previousWeeklyExpenses),

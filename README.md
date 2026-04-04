@@ -8,6 +8,7 @@ A personal expense tracking app built with Next.js App Router, TypeScript, Prism
 - Natural language expense input with AI parsing and a local fallback parser
 - SQLite storage through Prisma ORM
 - Personal dashboard with today's expenses, weekly totals, monthly totals, top category, trend chart, and category pie chart
+- Expense deletion from the dashboard
 - Logic-based insights for weekly and monthly spending patterns
 - Mobile-responsive UI using SCSS modules
 
@@ -82,11 +83,12 @@ npm run dev
 - `DELETE /api/session` clears the current session
 - `POST /api/expenses` parses natural language and stores a new expense for the logged-in user
 - `GET /api/expenses` returns recent expenses for the logged-in user
+- `DELETE /api/expenses?id=...` removes one expense owned by the logged-in user
 - `GET /api/expenses/summary` returns private dashboard aggregates and insights for the logged-in user
 
 ## Notes
 
-- `Expense.createdAt` stores the parsed date from the input
+- `Expense.expenseDate` stores the parsed date from the input, while `Expense.createdAt` tracks when the record was saved
 - The AI prompt and fallback parser live in `lib/ai.ts`
 - Input validation uses Zod
 - User identity is keyed by unique email address and protected by a password hash
@@ -96,7 +98,7 @@ npm run dev
 
 - Proper email verification or magic-link authentication
 - Hosted database for true cross-device persistence outside local SQLite
-- Expense edit and delete actions
+- Expense edit actions
 - CSV export
 - Yearly insights for long-term spending patterns and year-over-year comparisons, to be implemented once enough data has been collected over a year
 - Voice input
