@@ -76,6 +76,12 @@ npm run dev
 - All expense and summary API routes are scoped to the logged-in user
 - Each user only sees their own expense records and dashboard data
 
+## AI Features
+
+- OpenAI is used to convert free-form expense notes into structured data such as amount, category, description, and date
+- This allows users to log expenses with natural phrases like `Zomato 350`, `Petrol 500`, or `Dinner with team 850 yesterday`
+- If an OpenAI API key is not configured, the app falls back to a local parser so simple inputs still work reliably
+
 ## API Overview
 
 - `POST /api/session` creates an account or signs in a user and starts a session
